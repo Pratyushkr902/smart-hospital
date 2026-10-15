@@ -37,3 +37,8 @@ backend/smart_hospital_pbl
 smart_hospital_server
 backend/smart_hospital_server
 
+# SQLite Database
+*.db
+*.db-journal
+
+

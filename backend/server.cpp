@@ -1,18 +1,12 @@
 /**
  * @file server.cpp
- * @brief High-performance C++ REST API HTTP Server for Smart Hospital
+ * @brief High-performance C++ REST API HTTP Server with SQLite3 Relational Persistence
  * 
  * Features:
- * - Native POSIX Socket HTTP Server (Zero third-party library dependencies)
+ * - Native POSIX Socket HTTP Server (Zero external networking dependencies)
+ * - SQLite3 Relational Persistence (hospital.db)
+ * - In-Memory C++ Priority Queue (Max-Heap) + O(1) Hash Map
  * - Full CORS support for Next.js frontend (http://localhost:3000)
- * - REST Endpoints:
- *     GET  /api/health            -> Server health status
- *     GET  /api/queue             -> Current prioritized queue
- *     POST /api/checkin           -> Check in new patient with triage vitals
- *     POST /api/call-next         -> Doctor calls next critical patient (Max-Heap)
- *     POST /api/complete-consult  -> Doctor finishes consultation
- *     POST /api/advance-time      -> Advance time (aging/starvation bonus)
- *     GET  /api/audit-log         -> LIFO audit trail stack
  */
 
 #include "c_ds/heap.h"
@@ -23,6 +17,7 @@
 #include "cpp_oop/models/Roles.hpp"
 #include "cpp_oop/models/Patient.hpp"
 #include "cpp_oop/engine/HospitalSystem.hpp"
+#include "db/DatabaseManager.hpp"
 
 #include <iostream>
 #include <string>
@@ -40,9 +35,9 @@
 #define BUFFER_SIZE 65536
 
 static HospitalSystem g_hospital;
+static DatabaseManager g_db("hospital.db");
 static std::mutex g_mutex;
 
-// Simple JSON response builders
 std::string buildCorsHeaders(int statusCode = 200, const std::string& contentType = "application/json") {
     std::string statusMsg = (statusCode == 200) ? "200 OK" :
                             (statusCode == 204) ? "204 No Content" :
@@ -63,13 +58,21 @@ std::string handleOptions() {
 }
 
 std::string handleHealth() {
-    std::string body = R"({"status":"online","engine":"C++20 Priority Queue & Posix HTTP","version":"1.0.0"})";
+    int totalDbPatients = g_db.getTotalPatientsCount();
+    std::ostringstream json;
+    json << "{\"status\":\"online\","
+         << "\"engine\":\"C++20 Priority Queue & Posix HTTP\","
+         << "\"database\":\"SQLite3 (hospital.db)\","
+         << "\"totalPatientsInDatabase\":" << totalDbPatients << ","
+         << "\"activeQueueMemorySize\":" << g_hospital.getQueueSize() << ","
+         << "\"version\":\"1.1.0\"}";
+
+    std::string body = json.str();
     std::ostringstream response;
     response << buildCorsHeaders(200) << "Content-Length: " << body.length() << "\r\n\r\n" << body;
     return response.str();
 }
 
-// Simple JSON extraction helper for string values: "key":"value" or "key":123
 std::string extractJsonString(const std::string& json, const std::string& key) {
     std::string search = "\"" + key + "\":\"";
     size_t pos = json.find(search);
@@ -121,11 +124,16 @@ std::string handleCheckin(const std::string& body) {
     Patient p("", "", "", 0, "", "", "", {}, {});
     g_hospital.findPatientByToken(token, p);
 
+    // Save to SQLite Relational Database
+    g_db.savePatient(p, vitals);
+    g_db.logAudit("10:30 AM", receptionist->getName(), "Checked in " + name + " (" + token + ")");
+
     std::ostringstream json;
     json << "{\"success\":true,\"token\":\"" << token << "\","
          << "\"name\":\"" << p.getName() << "\","
          << "\"urgencyScore\":" << p.getUrgencyScore() << ","
-         << "\"effectiveScore\":" << p.getEffectiveScore() << "}";
+         << "\"effectiveScore\":" << p.getEffectiveScore() << ","
+         << "\"persistedToSqlite\":true}";
 
     std::string resBody = json.str();
     std::ostringstream response;
@@ -139,6 +147,10 @@ std::string handleCallNext() {
     Patient nextP("", "", "", 0, "", "", "", {}, {});
 
     if (g_hospital.callNextPatient(doctor, nextP)) {
+        // Update status in SQLite Database
+        g_db.updatePatientStatus(nextP.getToken(), "in-treatment");
+        g_db.logAudit("10:30 AM", doctor->getName(), "Called next patient: " + nextP.getName() + " (" + nextP.getToken() + ")");
+
         std::ostringstream json;
         json << "{\"success\":true,\"called\":true,"
              << "\"token\":\"" << nextP.getToken() << "\","
@@ -160,6 +172,7 @@ std::string handleAdvanceTime(const std::string& body) {
     std::lock_guard<std::mutex> lock(g_mutex);
     int mins = extractJsonInt(body, "minutes", 10);
     g_hospital.simulateTimeAdvance(mins);
+    g_db.logAudit("10:30 AM", "System", "Advanced simulation clock by " + std::to_string(mins) + " minutes");
 
     std::string resBody = "{\"success\":true,\"minutesAdvanced\":" + std::to_string(mins) + "}";
     std::ostringstream response;
@@ -182,7 +195,6 @@ void handleClient(int clientSocket) {
     std::string method, path, httpVer;
     reqStream >> method >> path >> httpVer;
 
-    // Extract body if POST
     std::string body;
     size_t bodyPos = request.find("\r\n\r\n");
     if (bodyPos != std::string::npos) {
@@ -216,13 +228,42 @@ int main() {
     struct sockaddr_in address;
     int opt = 1;
 
-    // Seed initial patients in C++ Priority Queue
-    {
+    // Database Initialization & Rehydration into C++ Priority Queue
+    int countInDb = g_db.getTotalPatientsCount();
+    if (countInDb == 0) {
+        // Seed initial patients into both C++ engine and SQLite
+        std::cout << "[Database] Initializing and seeding hospital.db SQLite tables...\n";
         auto receptionist = g_hospital.getStaff()[0];
-        g_hospital.checkInPatient(receptionist, "Asha Rao", 34, "F", "General Medicine", "D-104", {75, 120, 98, 4, 10}, {"diabetic"}, 50);
-        g_hospital.checkInPatient(receptionist, "Imran Qureshi", 61, "M", "Cardiology", "D-101", {130, 165, 89, 9, 25}, {"cardiac"}, 5);
-        g_hospital.checkInPatient(receptionist, "Fatima Sheikh", 28, "F", "General Medicine", "D-104", {82, 115, 97, 5, 8}, {"pregnant"}, 45);
-        g_hospital.checkInPatient(receptionist, "Vikram Nair", 45, "M", "Emergency", "D-101", {140, 175, 85, 10, 25}, {}, 2);
+        
+        ClinicalVitals v1{75, 120, 98, 4, 10};
+        std::string t1 = g_hospital.checkInPatient(receptionist, "Asha Rao", 34, "F", "General Medicine", "D-104", v1, {"diabetic"}, 50);
+        Patient p1("","", "", 0, "", "", "", {}, {});
+        g_hospital.findPatientByToken(t1, p1);
+        g_db.savePatient(p1, v1);
+
+        ClinicalVitals v2{130, 165, 89, 9, 25};
+        std::string t2 = g_hospital.checkInPatient(receptionist, "Imran Qureshi", 61, "M", "Cardiology", "D-101", v2, {"cardiac"}, 5);
+        Patient p2("","", "", 0, "", "", "", {}, {});
+        g_hospital.findPatientByToken(t2, p2);
+        g_db.savePatient(p2, v2);
+
+        ClinicalVitals v3{82, 115, 97, 5, 8};
+        std::string t3 = g_hospital.checkInPatient(receptionist, "Fatima Sheikh", 28, "F", "General Medicine", "D-104", v3, {"pregnant"}, 45);
+        Patient p3("","", "", 0, "", "", "", {}, {});
+        g_hospital.findPatientByToken(t3, p3);
+        g_db.savePatient(p3, v3);
+
+        ClinicalVitals v4{140, 175, 85, 10, 25};
+        std::string t4 = g_hospital.checkInPatient(receptionist, "Vikram Nair", 45, "M", "Emergency", "D-101", v4, {}, 2);
+        Patient p4("","", "", 0, "", "", "", {}, {});
+        g_hospital.findPatientByToken(t4, p4);
+        g_db.savePatient(p4, v4);
+    } else {
+        std::cout << "[Database] Rehydrating C++ Priority Queue directly from hospital.db (" << countInDb << " records found)...\n";
+        auto waiting = g_db.loadWaitingPatients();
+        for (const auto& p : waiting) {
+            g_hospital.addPatientDirect(p);
+        }
     }
 
     if ((serverFd = socket(AF_INET, SOCK_STREAM, 0)) == 0) {
@@ -251,6 +292,7 @@ int main() {
 
     std::cout << "\n============================================================\n";
     std::cout << "  🏥 SMART HOSPITAL C++ REST API SERVER ONLINE\n";
+    std::cout << "  Database: SQLite3 (hospital.db) [Tables: patients, vitals, logs]\n";
     std::cout << "  Listening on: http://localhost:" << PORT << "\n";
     std::cout << "  CORS Enabled for Next.js (http://localhost:3000)\n";
     std::cout << "============================================================\n";

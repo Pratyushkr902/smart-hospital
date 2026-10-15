@@ -24,7 +24,7 @@ $(PBL_TARGET): $(C_OBJS) main.o
 	$(CXX) $(CXXFLAGS) $(C_OBJS) main.o -o $(PBL_TARGET)
 
 $(SERVER_TARGET): $(C_OBJS) server.o
-	$(CXX) $(CXXFLAGS) $(C_OBJS) server.o -o $(SERVER_TARGET)
+	$(CXX) $(CXXFLAGS) $(C_OBJS) server.o -lsqlite3 -o $(SERVER_TARGET)
 
 run: $(PBL_TARGET)
 	./$(PBL_TARGET)

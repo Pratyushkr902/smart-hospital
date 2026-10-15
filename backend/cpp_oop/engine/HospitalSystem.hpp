@@ -90,6 +90,12 @@ public:
         return token;
     }
 
+    // Direct insertion for SQLite rehydration
+    void addPatientDirect(const Patient& p) {
+        triageQueue.push(p);
+        patientRegistry[p.getToken()] = p;
+    }
+
     // Doctor calls the next highest-urgency patient from the Max-Heap
     bool callNextPatient(const std::shared_ptr<User>& actor, Patient& outPatient) {
         if (!actor->hasPermission(Permission::CALL_PATIENT)) {

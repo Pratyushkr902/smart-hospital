@@ -71,6 +71,24 @@ Located in [`backend/cpp_oop/engine/HospitalSystem.hpp`](file:///Users/pratyushk
 
 ---
 
+## 2.5. Relational Database Persistence (SQLite3)
+
+Located in [`backend/db/DatabaseManager.hpp`](backend/db/DatabaseManager.hpp):
+
+- **Database File**: `hospital.db` (auto-created on launch)
+- **Relational Tables**:
+  - `patients`: `(id, token, name, age, gender, department, doctor_id, status, urgency_score, wait_minutes, effective_score, created_at)`
+  - `triage_vitals`: `(id, patient_token, heart_rate, systolic_bp, spo2, pain_level, vital_score)` with Foreign Key constraint referencing `patients(token)`.
+  - `doctors`: `(id, name, department, room)`
+  - `audit_logs`: `(id, timestamp, actor, action)`
+- **Key Concepts Demonstrated**:
+  - **RAII Resource Management**: Safe handling of `sqlite3*` handle via constructor/destructor.
+  - **Parameterized Prepared Statements**: `sqlite3_prepare_v2` and `sqlite3_bind_*` preventing SQL injection attacks.
+  - **State Rehydration**: On server launch, pending waiting patients are read from `hospital.db` and rehydrated directly into the C++ `std::priority_queue` and Hash Map so no queue data is lost on server reboot.
+  - **ACID Transactions**: Check-ins perform atomic multi-table inserts using `BEGIN TRANSACTION` and `COMMIT`.
+
+---
+
 ## 3. OOP Concepts in C++
 
 Located in [`backend/cpp_oop/`](file:///Users/pratyushkumar/Documents/smart-hospital/backend/cpp_oop/):
