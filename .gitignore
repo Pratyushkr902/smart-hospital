@@ -30,7 +30,8 @@ yarn-error.log*
 # vercel
 .vercel
 
-# typescript
-*.tsbuildinfo
-next-env.d.ts
+# C / C++ build outputs
+*.o
+smart_hospital_pbl
+backend/smart_hospital_pbl
 
