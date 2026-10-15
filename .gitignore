@@ -34,4 +34,6 @@ yarn-error.log*
 *.o
 smart_hospital_pbl
 backend/smart_hospital_pbl
+smart_hospital_server
+backend/smart_hospital_server
 

@@ -27,3 +27,4 @@ public:
     virtual int calculateScore(const Patient& patient, const ScoringConfig& config) const = 0;
     virtual std::string getStrategyName() const = 0;
 };
+

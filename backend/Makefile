@@ -9,12 +9,10 @@ CXXFLAGS = -std=c++20 -Wall -Wextra -O2
 C_SRCS = c_ds/heap.c c_ds/linked_list.c c_ds/hash_table.c
 C_OBJS = $(C_SRCS:.c=.o)
 
-CPP_SRCS = main.cpp
-CPP_OBJS = $(CPP_SRCS:.cpp=.o)
+PBL_TARGET = smart_hospital_pbl
+SERVER_TARGET = smart_hospital_server
 
-TARGET = smart_hospital_pbl
-
-all: $(TARGET)
+all: $(PBL_TARGET) $(SERVER_TARGET)
 
 c_ds/%.o: c_ds/%.c
 	$(CC) $(CFLAGS) -c $< -o $@
@@ -22,13 +20,19 @@ c_ds/%.o: c_ds/%.c
 %.o: %.cpp
 	$(CXX) $(CXXFLAGS) -I. -c $< -o $@
 
-$(TARGET): $(C_OBJS) $(CPP_OBJS)
-	$(CXX) $(CXXFLAGS) $(C_OBJS) $(CPP_OBJS) -o $(TARGET)
+$(PBL_TARGET): $(C_OBJS) main.o
+	$(CXX) $(CXXFLAGS) $(C_OBJS) main.o -o $(PBL_TARGET)
 
-run: $(TARGET)
-	./$(TARGET)
+$(SERVER_TARGET): $(C_OBJS) server.o
+	$(CXX) $(CXXFLAGS) $(C_OBJS) server.o -o $(SERVER_TARGET)
+
+run: $(PBL_TARGET)
+	./$(PBL_TARGET)
+
+server: $(SERVER_TARGET)
+	./$(SERVER_TARGET)
 
 clean:
-	rm -f $(TARGET) c_ds/*.o *.o
+	rm -f $(PBL_TARGET) $(SERVER_TARGET) c_ds/*.o *.o
 
-.PHONY: all run clean
+.PHONY: all run server clean

@@ -5,6 +5,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { Logo, Icon } from './Icons';
 import { ROLE_LABEL, ROLE_WHO } from '@/lib/mockData';
 import { initials } from '@/lib/engine';
+import { useApp } from '@/context/AppProvider';
 
 const NAV = {
   reception: [
@@ -35,6 +36,7 @@ export default function DashboardShell({ role, children }) {
   const router = useRouter();
   const navItems = NAV[role] || [];
   const [title, meta] = TITLES[pathname] || ['Dashboard', ''];
+  const { backendOnline } = useApp();
 
   return (
     <div className="flex min-h-screen">
@@ -89,7 +91,21 @@ export default function DashboardShell({ role, children }) {
             <h1 className="text-[17px] font-semibold m-0">{title}</h1>
             <div className="text-[12.5px] text-inkMuted mt-0.5">{meta}</div>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
+            <span
+              className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-medium ${
+                backendOnline
+                  ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                  : 'bg-gray-100 text-gray-600 border border-gray-200'
+              }`}
+            >
+              <span
+                className={`w-1.5 h-1.5 rounded-full ${
+                  backendOnline ? 'bg-emerald-500 animate-pulse' : 'bg-gray-400'
+                }`}
+              />
+              {backendOnline ? 'C++ REST Engine: Online' : 'Client Simulation'}
+            </span>
             <div className="text-[12.5px] text-inkMuted font-mono tnum">
               {new Date().toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' })}
             </div>

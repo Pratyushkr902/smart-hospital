@@ -72,3 +72,4 @@ void heap_print(const C_MaxHeap* heap);
 #endif
 
 #endif // HEAP_H
+

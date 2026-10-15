@@ -155,3 +155,4 @@ make -C backend run
    - **A**: By pairing a Max-Heap (`std::priority_queue`) for triage scheduling with a Hash Map (`std::unordered_map`) for token indexing.
 4. **Q: How does your system prevent priority inversion and starvation?**
    - **A**: The system implements an aging algorithm where each patient earns $+1$ bonus point for every 10 minutes spent waiting in the queue.
+

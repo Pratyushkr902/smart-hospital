@@ -121,3 +121,4 @@ void hash_table_print(const C_HashTable* table) {
     }
     printf("   └────────────────────────────────────────────────────────┘\n");
 }
+

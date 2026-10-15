@@ -99,3 +99,4 @@ public:
 
     const std::string& getToken() const { return token; }
 };
+

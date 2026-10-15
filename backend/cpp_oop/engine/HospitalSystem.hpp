@@ -160,3 +160,4 @@ public:
     size_t getQueueSize() const { return triageQueue.size(); }
     const std::vector<std::shared_ptr<User>>& getStaff() const { return staffMembers; }
 };
+

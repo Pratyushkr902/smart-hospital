@@ -51,3 +51,4 @@ public:
     const std::string& getName() const { return name; }
     Role getRole() const { return role; }
 };
+

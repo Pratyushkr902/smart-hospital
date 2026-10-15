@@ -5,6 +5,9 @@ all: backend
 backend:
 	$(MAKE) -C backend
 
+server:
+	$(MAKE) -C backend server
+
 run:
 	$(MAKE) -C backend run
 
@@ -14,4 +17,4 @@ frontend:
 clean:
 	$(MAKE) -C backend clean
 
-.PHONY: all backend run frontend clean
+.PHONY: all backend server run frontend clean
