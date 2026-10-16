@@ -7,7 +7,6 @@
 # 1. Vendor build tools, lockfiles, and static bundles
 Makefile linguist-vendored=true
 backend/Makefile linguist-vendored=true
-Dockerfile linguist-vendored=true
 package-lock.json linguist-vendored=true
 backend/include/** linguist-vendored=true
 *.json linguist-vendored=true

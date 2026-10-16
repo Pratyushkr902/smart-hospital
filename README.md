@@ -1,34 +1,58 @@
-# Smart Hospital Management System (Frontend + C/C++ PBL Engine)
+# Smart Hospital Management System
 
-A complete Smart Hospital Management System featuring:
-- **Frontend**: Next.js (App Router) + Tailwind CSS with portals for Receptionist, Doctor, Admin, and Patient.
-- **Backend / Core Engine**:
-  - **Data Structures in Pure C**: Binary Max-Heap (Priority Queue), Doubly Linked List, Chaining Hash Table.
-  - **OOP in Modern C++ (C++20)**: Inheritance, Polymorphism (RBAC), Encapsulation, Operator Overloading (`operator<`, `operator<<`), Strategy Design Pattern, and Smart Pointers (RAII).
-  - **C++ STL Integration**: `std::priority_queue`, `std::unordered_map`, `std::stack`, `std::vector`.
+A high-performance hospital triage and queue management system combining a modern Next.js console with a C++20 Crow REST backend, pure C data structures, and SQLite3 persistence.
 
 ---
 
-## 🚀 How to Run
+## 🏗️ Architecture
 
-### 1. Run C / C++ PBL Engine & DSA Benchmarks
+```
+Smart Hospital
+├── Frontend (Next.js 14 + Tailwind CSS)
+│   ├── Reception Portal (/reception/checkin, /reception/queue)
+│   ├── Doctor Portal (/doctor/queue)
+│   ├── Admin Portal (/admin/overview, /admin/config, /admin/log)
+│   └── Patient Portal (/patient)
+│
+├── Core REST Backend (C++20 + Crow Framework)
+│   ├── Crow REST Routing (CROW_ROUTE /api/...)
+│   ├── Role-Based Access Control (Admin, Doctor, Receptionist, Patient)
+│   ├── Relational Persistence Layer (SQLite3 hospital.db)
+│   └── Real-time State Rehydration on server reboot
+│
+└── Data Structures Engine (Pure C & C++ STL)
+    ├── Binary Max-Heap (heap.c) — O(1) peek, O(log N) clinical priority dispatch
+    ├── Self-Balancing AVL Tree (avl_tree.c) — O(log N) patient indexing
+    ├── Chaining Hash Table (hash_table.c) — DJB2 rolling hash, O(1) token lookup
+    ├── Circular FIFO Queue (queue.c) — O(1) general outpatient walk-in queue
+    └── Doubly Linked List (linked_list.c) — O(1) node deletion & queue rearrangement
+```
+
+---
+
+## 🚀 Quick Start
+
+### 1. Run the C++ Crow REST API Server
+
+```bash
+make server
+```
+*The Crow server starts at `http://localhost:8080` with SQLite database `hospital.db` and CORS enabled.*
+
+### 2. Run the Data Structures Test Suite
 
 ```bash
 make run
 ```
-Or directly from the backend folder:
-```bash
-cd backend
-make run
-```
+*Compiles and benchmarks all 5 pure C data structures and C++ OOP models.*
 
-### 2. Run Next.js Frontend
+### 3. Run the Next.js Frontend
 
 ```bash
 npm install
 npm run dev
 ```
-Then open [http://localhost:3000](http://localhost:3000) in your browser.
+*Open [http://localhost:3000](http://localhost:3000) in your browser.*
 
 ---
 
@@ -37,28 +61,27 @@ Then open [http://localhost:3000](http://localhost:3000) in your browser.
 ```
 smart-hospital/
 ├── app/                        # Next.js App Router (Reception, Doctor, Admin, Patient)
-├── components/                 # Shared UI components & Dashboard shells
-├── context/AppProvider.js      # Central state store (queue, audit log, config)
-├── lib/engine.js               # Frontend priority engine matching C++ spec
+├── components/                 # Reusable UI widgets & Dashboard console
+├── context/AppProvider.js      # State provider & Crow REST API integration
+├── lib/engine.js               # Clinical priority scoring algorithms
 │
-└── backend/                    # C & C++ Core Engine
+└── backend/                    # Core C & C++ Engine
     ├── c_ds/                   # Pure C Data Structures
     │   ├── heap.h & .c         # Binary Max-Heap (Dynamic Priority Queue)
-    │   ├── linked_list.h & .c  # Doubly Linked List
-    │   └── hash_table.h & .c   # Hash Table with Separate Chaining
+    │   ├── avl_tree.h & .c     # Self-Balancing AVL Binary Search Tree
+    │   ├── hash_table.h & .c   # Hash Table with Separate Chaining
+    │   ├── queue.h & .c        # Circular FIFO Queue
+    │   └── linked_list.h & .c  # Doubly Linked List
     │
-    ├── cpp_oop/                # C++ Object-Oriented Architecture
-    │   ├── models/User.hpp     # Abstract Base Class, Virtual Methods, RBAC
-    │   ├── models/Roles.hpp    # Derived Classes: Doctor, Receptionist, Admin, Patient
-    │   ├── models/Patient.hpp  # Encapsulation & Operator Overloading (<, <<)
-    │   └── engine/             # Strategy Pattern & STL Hospital System
+    ├── cpp_oop/                # C++20 Object-Oriented Architecture
+    │   ├── models/User.hpp     # Abstract Base Class, RBAC permissions
+    │   ├── models/Roles.hpp    # Derived Classes: Doctor, Receptionist, Admin
+    │   ├── models/Patient.hpp  # Encapsulation, Vitals, Operator Overloading (<, <<)
+    │   └── engine/             # Strategy Pattern & STL Priority Queue
     │
-    ├── main.cpp                # Comprehensive runnable simulation
-    ├── Makefile                # Build system (clang + clang++ C++20)
-    └── PBL_CONCEPTS_GUIDE.md   # Complete academic viva & project guide
+    ├── db/DatabaseManager.hpp  # SQLite3 Relational Persistence & State Rehydration
+    ├── include/crow.h          # Crow REST API Framework Header
+    ├── server.cpp              # Multi-threaded Crow REST Server (port 8080)
+    ├── main.cpp                # Algorithmic simulation & benchmark runner
+    └── Makefile                # Multi-target build system (clang / clang++ C++20)
 ```
-
----
-
-## 📖 PBL & DSA Guide
-For complete documentation of all data structures, time complexities, OOP design patterns, and viva evaluation Q&A, refer to [`backend/PBL_CONCEPTS_GUIDE.md`](backend/PBL_CONCEPTS_GUIDE.md).
