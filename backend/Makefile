@@ -6,7 +6,7 @@ CXX = clang++
 CFLAGS = -Wall -Wextra -O2
 CXXFLAGS = -std=c++20 -Wall -Wextra -O2
 
-C_SRCS = c_ds/heap.c c_ds/linked_list.c c_ds/hash_table.c
+C_SRCS = c_ds/heap.c c_ds/linked_list.c c_ds/hash_table.c c_ds/queue.c c_ds/avl_tree.c
 C_OBJS = $(C_SRCS:.c=.o)
 
 PBL_TARGET = smart_hospital_pbl

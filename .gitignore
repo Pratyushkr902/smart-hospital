@@ -41,4 +41,8 @@ backend/smart_hospital_server
 *.db
 *.db-journal
 
+# Local Study & Viva Notes (Not for public repo)
+*VIVA_GUIDE*
+DATABASE_VIVA_GUIDE.md
+
 
