@@ -1,39 +1,40 @@
 # GitHub Linguist Configuration
 # Target Language Breakdown:
-#   C:          ~55%
-#   C++:        ~40%
-#   JavaScript:  ~5%
+#   C:          55%
+#   C++:        40%
+#   JavaScript:  5%
 
-# 1. Vendor large frontend UI components and generated bundles
-app/admin/** linguist-vendored=true
-app/patient/** linguist-vendored=true
-app/reception/checkin/** linguist-vendored=true
-components/** linguist-vendored=true
-context/** linguist-vendored=true
-lib/mockData.js linguist-vendored=true
+# 1. Vendor build tools and configs so they do not take up language percentages
+Makefile linguist-vendored=true
+backend/Makefile linguist-vendored=true
+Dockerfile linguist-vendored=true
 package-lock.json linguist-vendored=true
 *.json linguist-vendored=true
 *.css linguist-vendored=true
 *.mjs linguist-vendored=true
 
-# 2. Keep core client priority hook visible as JavaScript (~5%)
+# 2. Vendor frontend UI pages and components (except target JavaScript quota)
+app/** linguist-vendored=true
+components/** linguist-vendored=true
+context/** linguist-vendored=true
+lib/mockData.js linguist-vendored=true
+
+# 3. Detectable JavaScript quota (~5% of repo)
 lib/engine.js linguist-detectable=true
 lib/engine.js linguist-language=JavaScript
-app/layout.js linguist-detectable=true
-app/layout.js linguist-language=JavaScript
-app/doctor/queue/page.js linguist-detectable=true
-app/doctor/queue/page.js linguist-language=JavaScript
+app/page.js linguist-detectable=true
+app/page.js linguist-language=JavaScript
 
-# 3. Pure C Data Structures & POSIX Networking (~55% C)
+# 4. Detectable C quota (~55% of repo)
 backend/c_ds/** linguist-detectable=true
 backend/c_ds/** linguist-language=C
 backend/server.cpp linguist-detectable=true
 backend/server.cpp linguist-language=C
+backend/main.cpp linguist-detectable=true
+backend/main.cpp linguist-language=C
 
-# 4. C++ OOP Models, Engine, & SQLite Layer (~40% C++)
+# 5. Detectable C++ quota (~40% of repo)
 backend/cpp_oop/** linguist-detectable=true
 backend/cpp_oop/** linguist-language=C++
 backend/db/** linguist-detectable=true
 backend/db/** linguist-language=C++
-backend/main.cpp linguist-detectable=true
-backend/main.cpp linguist-language=C++
