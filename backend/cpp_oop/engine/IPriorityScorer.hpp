@@ -17,8 +17,8 @@ struct ScoringConfig {
     int painMax = 15;
     int ageMax = 10;
     int riskMax = 10;
-    int waitInterval = 10; // minutes per bonus point
-    int waitCap = 20;      // max bonus points
+    int waitInterval = 10; 
+    int waitCap = 20;    
 };
 
 class IPriorityScorer {

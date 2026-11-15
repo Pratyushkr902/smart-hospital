@@ -60,8 +60,8 @@ function PatientBody() {
                   <Banner>
                     <Icon name="info" className="text-brand shrink-0 mt-px" />
                     <span>
-                      Your position can move if a more urgent case arrives, or if you&rsquo;ve been waiting long enough
-                      that the fairness bonus lifts your place in line.
+                     Your queue position is updated automatically based on clinical priority
+and waiting time, ensuring fair and timely patient care.
                     </span>
                   </Banner>
                 </div>

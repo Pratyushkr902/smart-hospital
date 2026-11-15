@@ -65,13 +65,11 @@ public:
     }
 
     void calculateScores() {
-        // Base urgency formula matching PRD:
-        // vitalScore (0-25) + pain (0-15) + ageScore (0-10) + riskPts (0-10)
+
         int ageScore = (age > 65 || age < 5) ? 8 : 2;
         int riskScore = std::min(static_cast<int>(riskFactors.size() * 3), 10);
         urgencyScore = std::min(vitals.vitalScore + vitals.painLevel + ageScore + riskScore, 80);
 
-        // Inversion/Starvation prevention bonus: +1 point per 10 mins waited, capped at 20
         int waitBonus = std::min(waitMinutes / 10, 20);
         effectiveScore = std::min(urgencyScore + waitBonus, 100);
     }
@@ -83,11 +81,8 @@ public:
         }
     }
 
-    // Operator Overloading for Max-Heap (std::priority_queue)
-    // In C++ std::priority_queue<T>, a < b means b has higher priority
     bool operator<(const Patient& other) const {
         if (effectiveScore == other.effectiveScore) {
-            // Tie breaker: FIFO based on arrival time (earlier arrival gets priority)
             return arrivalTime > other.arrivalTime;
         }
         return effectiveScore < other.effectiveScore;
@@ -97,7 +92,6 @@ public:
         return token == other.token || id == other.id;
     }
 
-    // Friend function: Stream Insertion Operator Overloading
     friend std::ostream& operator<<(std::ostream& os, const Patient& p) {
         std::string statusStr = (p.status == PatientStatus::WAITING) ? "Waiting" :
                                 (p.status == PatientStatus::IN_TREATMENT) ? "In Treatment" : "Completed";

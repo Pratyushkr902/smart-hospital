@@ -11,7 +11,6 @@
 #include "User.hpp"
 #include <unordered_set>
 
-// 1. Receptionist Role
 class Receptionist : public User {
 private:
     std::string deskId;
@@ -33,7 +32,6 @@ public:
     const std::string& getDeskId() const { return deskId; }
 };
 
-// 2. Doctor Role
 class Doctor : public User {
 private:
     std::string department;
@@ -58,7 +56,6 @@ public:
     const std::string& getRoomNumber() const { return roomNumber; }
 };
 
-// 3. Administrator Role
 class Administrator : public User {
 private:
     std::string adminLevel;
